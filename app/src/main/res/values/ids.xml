@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="txtNomeArquivo" type="id" />
+    <item name="icon_tipo" type="id" />
+    <item name="txtTamanhoArquivo" type="id" />
+    <item name="btnHistorico" type="id" />
+</resources>

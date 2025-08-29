@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">flash-drop</string>
+    <string name="app_name">Flash Drop 2</string>
+    <string-array name="tipos_arquivo">
+        <item>Escolher tipo de arquivo</item> <!-- "Hint" -->
+        <item>PDF</item>
+        <item>Imagem</item>
+        <item>Documento Word</item>
+        <item>Outro</item>
+    </string-array>
+    <string name="icon_tipo">Ícone do tipo de arquivo</string>
+
 </resources>

@@ -1,3 +1,5 @@
+package com.example.flash_drop.ui
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,15 +9,25 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.flash_drop.R
 import com.example.flash_drop.data.devices.Device
 
-class DevicesAdapter(
+class DevicesAdapter (
     private val devices: List<Device>,
-    private val onItemClick: (Device) -> Unit // 👉 aqui já tipa corretamente
+    private val onItemClick: (Device) -> Unit
 ) : RecyclerView.Adapter<DevicesAdapter.DeviceViewHolder>() {
 
     inner class DeviceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imgDevice: ImageView = itemView.findViewById(R.id.imgDevice)
-        val tvName: TextView = itemView.findViewById(R.id.tvDeviceName)
-        val tvStatus: TextView = itemView.findViewById(R.id.tvDeviceStatus)
+        private val imgDevice: ImageView = itemView.findViewById(R.id.imgDevice)
+        private val tvDeviceName: TextView = itemView.findViewById(R.id.tvDeviceName)
+        private val tvDeviceStatus: TextView = itemView.findViewById(R.id.tvDeviceStatus)
+
+        fun bind(device: Device) {
+            tvDeviceName.text = device.name
+            tvDeviceStatus.text = device.status
+            imgDevice.setImageResource(device.iconRes)
+
+            itemView.setOnClickListener {
+                onItemClick(device) // Passa o device pro MainActivity
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DeviceViewHolder {
@@ -25,16 +37,8 @@ class DevicesAdapter(
     }
 
     override fun onBindViewHolder(holder: DeviceViewHolder, position: Int) {
-        val device = devices[position]
-        holder.imgDevice.setImageResource(device.iconRes)
-        holder.tvName.text = device.name
-        holder.tvStatus.text = device.status
-
-        // 👉 Chama a lambda passada no construtor
-        holder.itemView.setOnClickListener {
-            onItemClick(device)
-        }
+        holder.bind(devices[position])
     }
 
-    override fun getItemCount() = devices.size
+    override fun getItemCount(): Int = devices.size
 }
