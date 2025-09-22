@@ -9,7 +9,7 @@
     <FrameLayout
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:background="@drawable/bg_black_circle"
+        android:background="@drawable/bg_icon_black"
         android:gravity="center">
 
         <ImageView

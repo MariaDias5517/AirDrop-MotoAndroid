@@ -23,10 +23,8 @@ import androidx.core.view.WindowInsetsCompat
 
 class AnexoActivity : AppCompatActivity() {
 
-    // Referência do container de arquivos (vamos inicializar no onCreate)
     private lateinit var filesContainer: LinearLayout
 
-    // Lançador de arquivo
     private val pickFileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
             val fileName = getFileName(uri)
@@ -51,7 +49,6 @@ class AnexoActivity : AppCompatActivity() {
         // Inicializa container de arquivos
         filesContainer = findViewById(R.id.filesContainer)
 
-        // Ajusta padding para barras do sistema
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)

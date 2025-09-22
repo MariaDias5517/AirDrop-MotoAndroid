@@ -5,35 +5,48 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@color/fundo_azulado">
+
 
     <LinearLayout
-
         android:id="@+id/topBar"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:background="#1F1711"
+        android:layout_height="120dp"
+        android:background="@color/primary_dark"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingEnd="16dp">
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="70dp"
+            android:scaleType="centerCrop"
+            android:clipToOutline="true"
+            android:background="@drawable/circle_mask"
+            app:srcCompat="@drawable/chatgpt_image_20_de_set__de_2025__13_06_48" />
 
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:text="FlashDrop"
             android:textColor="@android:color/white"
             android:textSize="30sp"
             android:textStyle="bold" />
+
+
+
     </LinearLayout>
 
-    <!-- Card branco principal -->
     <LinearLayout
-        android:layout_marginTop="50dp"
         android:id="@+id/cardMain"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="0dp"
         android:layout_below="@id/topBar"
         android:layout_above="@id/bottomBar"
         android:orientation="vertical"
@@ -62,7 +75,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Parear dispositivo"
-                    android:textColor="@color/text_color"
+                    android:textColor="@color/primary_dark"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -70,25 +83,26 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Dispositivo atual: Nenhum\nconectado"
-                    android:textColor="@color/text_color"
+                    android:textColor="@color/text_secondary"
                     android:textSize="14sp" />
             </LinearLayout>
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/secondary_color"
+                android:backgroundTint="@color/primary_blue"
                 android:text="parear"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                app:cornerRadius="10dp" />
         </LinearLayout>
 
         <!-- Dispositivos disponíveis -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dispositivos disponíveis"
-            android:textColor="@color/text_color"
-            android:textSize="16sp"
+            android:text="Histórico de Dispositivos"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -105,8 +119,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Últimos enviados"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -122,12 +136,13 @@
             android:id="@+id/btnHistorico"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginBottom="40dp"
-            android:backgroundTint="#F4AB50"
+            android:backgroundTint="@color/primary_blue"
             android:text="Ver histórico completo"
             android:textColor="@android:color/white"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:cornerRadius="10dp" />
     </LinearLayout>
 
     <!-- Bottom Navigation Bar -->
@@ -137,7 +152,7 @@
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:background="#F4AB50"
+        android:background="@color/white"
         android:weightSum="3"
         android:gravity="center_vertical"
         android:elevation="8dp">
@@ -149,7 +164,7 @@
             android:layout_weight="1"
             android:src="@drawable/ic_historico"
             android:background="@android:color/transparent"
-            app:tint="#000000"
+            app:tint="#66000000"
             android:contentDescription="Botão de histórico" />
 
         <ImageButton
@@ -159,7 +174,7 @@
             android:layout_weight="1"
             android:src="@drawable/ic_home"
             android:background="@android:color/transparent"
-            app:tint="#000000"
+            app:tint="#3A7BFB"
             android:contentDescription="Botão Home" />
 
         <ImageButton
@@ -169,7 +184,7 @@
             android:layout_weight="1"
             android:src="@drawable/ic_settings"
             android:background="@android:color/transparent"
-            app:tint="#000000"
+            app:tint="#66000000"
             android:contentDescription="Botão de configurações" />
     </LinearLayout>
 

@@ -5,4 +5,11 @@
     <color name="background">#1F1711</color>
     <color name="text_color">#221912</color>
     <color name="secondary_color">#FF9800</color>
+    <color name="primary_blue">#2979FF</color>
+    <color name="primary_dark">#283653</color>
+    <color name="cards_cinzas">#D9D9D9</color>
+    <color name="text_primary">#1B1E28</color>
+    <color name="text_secondary">#5A5D6A</color>
+    <color name="fundo_azulado">#E7F0F7</color>
+
 </resources>

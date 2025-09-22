@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/main" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#1c1c1c">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary_dark">
 
     <!-- Top Bar -->
 
@@ -8,7 +13,7 @@
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:background="#1F1711"
+        android:background="@color/primary_dark"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="16dp"
@@ -58,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#F59C24"
+            android:backgroundTint="@color/primary_blue"
             android:text="+ Anexar"
             android:textAllCaps="false"
             android:textColor="#FFFFFF" />
@@ -75,7 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="24dp"
-            android:backgroundTint="#F59C24"
+            android:backgroundTint="@color/primary_blue"
             android:text="INICIAR"
             android:textAllCaps="false"
             android:textColor="#ffffff" />
@@ -88,7 +93,7 @@
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:background="#F4AB50"
+        android:background="#FFFFFF"
         android:weightSum="3"
         android:gravity="center_vertical"
         android:elevation="8dp">
@@ -100,7 +105,7 @@
             android:layout_weight="1"
             android:src="@drawable/ic_historico"
             android:background="@android:color/transparent"
-            app:tint="#000000"
+            app:tint="#66000000"
             android:contentDescription="Botão de histórico"/>
 
         <ImageButton
@@ -110,7 +115,7 @@
             android:layout_weight="1"
             android:src="@drawable/ic_home"
             android:background="@android:color/transparent"
-            app:tint="#000000"
+            app:tint="#66000000"
             android:contentDescription="Botão Home"/>
 
         <ImageButton
@@ -120,7 +125,7 @@
             android:layout_weight="1"
             android:src="@drawable/ic_settings"
             android:background="@android:color/transparent"
-            app:tint="#000000"
+            app:tint="#66000000"
             android:contentDescription="Botão de configurações"/>
     </LinearLayout>
 
