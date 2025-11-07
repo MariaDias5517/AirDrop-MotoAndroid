@@ -47,8 +47,8 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AnexoActivity::class.java)
             intent.putExtra("deviceName", (device as Device).name)
             startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
-
 
         // 👉 Adapter de Files
         filesAdapter = FilesAdapter(files)
@@ -60,16 +60,48 @@ class MainActivity : AppCompatActivity() {
         rvFiles.layoutManager = LinearLayoutManager(this)
         rvFiles.adapter = filesAdapter
 
+        // BOTÃO PAREAR - Agora vai para DeviceListActivity
+        val btnParear = findViewById<Button>(R.id.btnParear)
+        btnParear.setOnClickListener {
+            val intent = Intent(this, DeviceListActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
+
         // Botões de histórico
         val btnHistorico = findViewById<Button>(R.id.btnHistorico)
         val btnHistoricoImg = findViewById<ImageButton>(R.id.btnHistoricoImg)
 
         btnHistorico.setOnClickListener {
             startActivity(Intent(this, HistoricoActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
 
         btnHistoricoImg.setOnClickListener {
             startActivity(Intent(this, HistoricoActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
+
+        // Botão de configurações
+        val btnSettings = findViewById<ImageButton>(R.id.btnSettings)
+        btnSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
+
+        // Botão home (já está na MainActivity, então pode apenas rolar para o topo ou recarregar)
+        val btnHome = findViewById<ImageButton>(R.id.btnHome)
+        btnHome.setOnClickListener {
+            // Já está na home, então pode recarregar ou fazer nada
+            // Ou se quiser rolar para o topo:
+            rvDevices.smoothScrollToPosition(0)
+            rvFiles.smoothScrollToPosition(0)
+        }
+    }
+
+    // Adiciona animação ao voltar com botão físico
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_rigth)
     }
 }

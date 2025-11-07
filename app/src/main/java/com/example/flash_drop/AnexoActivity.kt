@@ -18,8 +18,6 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 class AnexoActivity : AppCompatActivity() {
 
@@ -41,28 +39,28 @@ class AnexoActivity : AppCompatActivity() {
         val btnHome = findViewById<ImageButton>(R.id.btnHome)
 
         btnHome.setOnClickListener{
-            startActivity(Intent(this, MainActivity::class.java))
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_rigth)
         }
+
         val deviceName = intent.getStringExtra("deviceName")
         Toast.makeText(this, "Anexando arquivo para: $deviceName", Toast.LENGTH_LONG).show()
 
         // Inicializa container de arquivos
         filesContainer = findViewById(R.id.filesContainer)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        // REMOVA ESTAS LINHA QUE CAUSAM O ERRO:
+        // ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        //     val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        //     v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+        //     insets
+        // }
 
         // CONFIGURAÇÃO DO SPINNER
-        val spinner = findViewById<Spinner>(R.id.spinnerTipoArquivo)
-        val tipos = resources.getStringArray(R.array.tipos_arquivo)
-
         val adapter = object : ArrayAdapter<String>(
             this,
             android.R.layout.simple_spinner_item,
-            tipos
         ) {
             override fun isEnabled(position: Int): Boolean {
                 return position != 0
@@ -75,10 +73,6 @@ class AnexoActivity : AppCompatActivity() {
                 return view
             }
         }
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = adapter
-        spinner.setSelection(0)
 
         // Botão de Anexar
         val btnAnexar = findViewById<Button>(R.id.btnAnexar)
@@ -98,8 +92,6 @@ class AnexoActivity : AppCompatActivity() {
         return name
     }
 
-
-
     private fun addFileToList(fileName: String) {
         val textView = TextView(this).apply {
             text = fileName
@@ -110,5 +102,9 @@ class AnexoActivity : AppCompatActivity() {
 
         filesContainer.addView(textView)
     }
-}
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_rigth)
+    }
+}

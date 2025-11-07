@@ -12,5 +12,9 @@
         <item name="cornerSizeTopRight">16dp</item>
         <item name="cornerSizeBottomLeft">0dp</item>
         <item name="cornerSizeBottomRight">0dp</item>
+        <item name="colorPrimary">#1976D2</item>
+        <item name="colorPrimaryVariant">#0D47A1</item>
+        <item name="colorSecondary">#42A5F5</item>
+
     </style>
 </resources>
