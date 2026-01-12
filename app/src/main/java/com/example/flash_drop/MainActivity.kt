@@ -25,15 +25,15 @@ class MainActivity : AppCompatActivity() {
 
         val devices = listOf(
             Device("Moto G", "Disponível", R.drawable.mobile),
-            Device("Legion", "Disponível", R.drawable.laptop),
+            Device("Legion", "Disponível", R.drawable.mobile),
             Device("Samsung A12", "Disponível", R.drawable.mobile),
             Device("Galaxy S24 Ultra", "Disponível", R.drawable.mobile),
-            Device("Windows", "Disponível", R.drawable.laptop),
+            Device("Windows", "Disponível", R.drawable.mobile),
             Device("Moto Edge", "Disponível", R.drawable.mobile),
-            Device("Legion", "Disponível", R.drawable.laptop),
+            Device("Legion", "Disponível", R.drawable.mobile),
             Device("Galaxy A15", "Disponível", R.drawable.mobile),
             Device("Redmi 13C", "Disponível", R.drawable.mobile),
-            Device("Legion", "Disponível", R.drawable.laptop),
+            Device("Legion", "Disponível", R.drawable.mobile),
         )
 
         val files = listOf(
@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         rvFiles.layoutManager = LinearLayoutManager(this)
         rvFiles.adapter = filesAdapter
 
-        // BOTÃO PAREAR - Agora vai para DeviceListActivity
+        // BOTÃO PAREAR - Agora vai para com.example.flash_drop.ui.DeviceListActivity
         val btnParear = findViewById<Button>(R.id.btnParear)
         btnParear.setOnClickListener {
             val intent = Intent(this, DeviceListActivity::class.java)

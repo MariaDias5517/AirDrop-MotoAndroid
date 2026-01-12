@@ -87,7 +87,8 @@
                     android:text="+ Adicionar Arquivo"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"/>
 
                 <LinearLayout
                     android:id="@+id/filesContainer"
@@ -107,7 +108,8 @@
                     android:text="Iniciar Transferência"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"/>
             </LinearLayout>
 
             <!-- SEÇÃO INFORMAÇÃO -->

@@ -12,6 +12,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageButton
@@ -29,6 +30,7 @@ class DeviceListActivity : AppCompatActivity() {
     private lateinit var arrayAdapter: ArrayAdapter<String>
     private lateinit var txtStatus: TextView
     private val deviceList = mutableListOf<String>()
+    private val bluetoothDevices = mutableMapOf<String, BluetoothDevice>() // Mapa para armazenar os dispositivos
 
     // Receiver para dispositivos encontrados
     private val receiver = object : BroadcastReceiver() {
@@ -36,7 +38,13 @@ class DeviceListActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val action = intent?.action
             if (BluetoothDevice.ACTION_FOUND == action) {
-                val device: BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                val device: BluetoothDevice? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                }
+
                 device?.let {
                     // Filtra apenas dispositivos móveis
                     if (it.bluetoothClass.deviceClass == BluetoothClass.Device.PHONE_SMART ||
@@ -49,11 +57,14 @@ class DeviceListActivity : AppCompatActivity() {
 
                         if (!deviceList.contains(display)) {
                             deviceList.add(display)
+                            bluetoothDevices[address] = it // Armazena o dispositivo
                             arrayAdapter.notifyDataSetChanged()
                             txtStatus.text = "${deviceList.size} dispositivos encontrados"
                         }
                     }
                 }
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED == action) {
+                txtStatus.text = "Busca finalizada - ${deviceList.size} dispositivos"
             }
         }
     }
@@ -64,18 +75,25 @@ class DeviceListActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val action = intent?.action
             if (BluetoothDevice.ACTION_BOND_STATE_CHANGED == action) {
-                val device: BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                val bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR)
+                val device: BluetoothDevice? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                }
+
+                val bondState = intent?.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR) ?: BluetoothDevice.ERROR
 
                 when (bondState) {
                     BluetoothDevice.BOND_BONDED -> {
                         device?.let {
-                            Toast.makeText(this@DeviceListActivity, "Pareado com ${it.name}", Toast.LENGTH_SHORT).show()
-                            // Ir para tela de anexar arquivos
-                            val intent = Intent(this@DeviceListActivity, AnexoActivity::class.java)
-                            intent.putExtra("deviceName", it.name)
-                            startActivity(intent)
-                            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+                            Toast.makeText(this@DeviceListActivity, "Pareado com ${it.name ?: it.address}", Toast.LENGTH_SHORT).show()
+                            txtStatus.text = "Pareado com ${it.name ?: it.address}"
+
+                            // Aguardar um momento antes de ir para a próxima tela
+                            Handler(mainLooper).postDelayed({
+                                goToAnexoActivity(it)
+                            }, 1000)
                         }
                     }
                     BluetoothDevice.BOND_BONDING -> {
@@ -89,6 +107,9 @@ class DeviceListActivity : AppCompatActivity() {
             }
         }
     }
+
+    // Handler para operações na thread principal
+    private lateinit var handler: android.os.Handler
 
     // Launcher para ativar Bluetooth
     private val enableBluetoothLauncher =
@@ -106,11 +127,13 @@ class DeviceListActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_device_list)
 
+        handler = android.os.Handler(mainLooper)
+
         // Configurar botão voltar
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
         btnBack.setOnClickListener {
             finish()
-            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_rigth)
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
 
         // Inicializar componentes
@@ -135,32 +158,21 @@ class DeviceListActivity : AppCompatActivity() {
             checkPermissionAndScan()
         }
 
-        // Clique na lista para parear
+        // Clique na lista
         listView.setOnItemClickListener { _, _, position, _ ->
             val deviceInfo = deviceList[position]
-            val address = deviceInfo.split("\n")[1] // Pega o endereço MAC
-            val device = bluetoothAdapter.getRemoteDevice(address)
+            val address = deviceInfo.split("\n")[1]
+            val device = bluetoothDevices[address]
 
-            if (device.bondState == BluetoothDevice.BOND_NONE) {
-                // Iniciar pareamento
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    if (checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-                        device.createBond()
-                    }
-                } else {
-                    device.createBond()
-                }
-            } else {
-                // Já está pareado, ir direto para AnexoActivity
-                val intent = Intent(this, AnexoActivity::class.java)
-                intent.putExtra("deviceName", device.name ?: "Dispositivo")
-                startActivity(intent)
-                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+            device?.let {
+                checkDevicePairingStatus(it)
             }
         }
 
         // Registrar receivers
-        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND).apply {
+            addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
+        }
         registerReceiver(receiver, filter)
 
         val bondFilter = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
@@ -168,8 +180,106 @@ class DeviceListActivity : AppCompatActivity() {
 
         // Iniciar busca automática se já tiver permissões
         if (bluetoothAdapter.isEnabled) {
-            checkPermissionAndScan()
+            handler.postDelayed({
+                checkPermissionAndScan()
+            }, 500)
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun checkDevicePairingStatus(device: BluetoothDevice) {
+        // Verificar se tem permissão
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permissão necessária para verificar pareamento", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+
+        when (device.bondState) {
+            BluetoothDevice.BOND_BONDED -> {
+                // Já está pareado, pode ir para a próxima tela
+                goToAnexoActivity(device)
+            }
+            BluetoothDevice.BOND_BONDING -> {
+                Toast.makeText(this, "Pareamento em andamento...", Toast.LENGTH_SHORT).show()
+                txtStatus.text = "Pareamento em andamento..."
+            }
+            BluetoothDevice.BOND_NONE -> {
+                // Não está pareado, iniciar processo de pareamento
+                Toast.makeText(this, "Iniciando pareamento...", Toast.LENGTH_SHORT).show()
+                txtStatus.text = "Iniciando pareamento..."
+
+                // Tentar parear
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        if (checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(this, "Permissão necessária para parear", Toast.LENGTH_SHORT).show()
+                            return
+                        }
+                    }
+
+                    // Método para parear
+                    val method = device.javaClass.getMethod("createBond")
+                    method.invoke(device)
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Erro ao iniciar pareamento: ${e.message}", Toast.LENGTH_SHORT).show()
+                    txtStatus.text = "Erro ao parear"
+
+                    // Mostrar instruções para parear manualmente
+                    showPairingInstructions(device)
+                }
+            }
+        }
+    }
+
+    private fun showPairingInstructions(device: BluetoothDevice) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Pareamento necessário")
+            .setMessage("Para continuar, é necessário parear com o dispositivo ${device.name ?: device.address}.\n\n" +
+                    "Por favor, vá nas configurações de Bluetooth do seu dispositivo e aceite a solicitação de pareamento.")
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun goToAnexoActivity(device: BluetoothDevice) {
+        val intent = Intent(this, AnexoActivity::class.java)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        intent.putExtra("deviceName", device.name ?: "Dispositivo")
+        intent.putExtra("deviceAddress", device.address)
+        startActivity(intent)
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
     }
 
     private fun checkPermissionAndScan() {
@@ -197,15 +307,21 @@ class DeviceListActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun startDiscovery() {
+        // Cancelar descoberta anterior se estiver acontecendo
         if (bluetoothAdapter.isDiscovering) {
             bluetoothAdapter.cancelDiscovery()
         }
 
         deviceList.clear()
+        bluetoothDevices.clear()
         arrayAdapter.notifyDataSetChanged()
         txtStatus.text = "Buscando dispositivos..."
 
-        bluetoothAdapter.startDiscovery()
+        val started = bluetoothAdapter.startDiscovery()
+        if (!started) {
+            txtStatus.text = "Falha ao iniciar busca"
+            Toast.makeText(this, "Não foi possível iniciar a busca por dispositivos", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -221,33 +337,31 @@ class DeviceListActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onDestroy() {
         super.onDestroy()
         try {
             unregisterReceiver(receiver)
             unregisterReceiver(bondReceiver)
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.BLUETOOTH_SCAN
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return
+
+            // Verificar permissão antes de cancelar descoberta
+            if (bluetoothAdapter.isDiscovering) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
+                        bluetoothAdapter.cancelDiscovery()
+                    }
+                } else {
+                    bluetoothAdapter.cancelDiscovery()
+                }
             }
-            bluetoothAdapter.cancelDiscovery()
         } catch (e: Exception) {
             // Já estava desregistrado
+            e.printStackTrace()
         }
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_rigth)
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
     }
 }
